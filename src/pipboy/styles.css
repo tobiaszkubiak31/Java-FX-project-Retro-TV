@@ -1,0 +1,18 @@
+
+
+
+.powerOFF{
+    -fx-background-radius: 100em;
+    -fx-min-width: 62px;
+    -fx-min-height: 52px;
+    -fx-focus-color: transparent;
+    -fx-background-image: url('/pipboy/img/powerOFF.png');
+}
+
+.powerON{
+    -fx-background-radius: 100em;
+    -fx-min-width: 62px;
+    -fx-min-height: 52px;
+    -fx-focus-color: transparent;
+    -fx-background-image: url('/pipboy/img/powerON.png');
+}
