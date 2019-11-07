@@ -1,4 +1,7 @@
 
+.backgroundPipBoy{
+    -fx-background-image: url('/pipboy/img/pipboy.png');
+}
 
 
 .powerOFF{

@@ -22,21 +22,6 @@ public class Controller {
 
     public ImageView lights;
 
-    // jak to przeniesc do cssa???
-    private String powerOFF =
-            "-fx-background-radius: 100em;\n" +
-            "-fx-min-width: 62px;\n" +
-            "-fx-min-height: 52px;\n" +
-            "-fx-focus-color: transparent;\n" +
-            "-fx-background-image: url('/pipboy/img/powerOFF.png');";
-
-    private String powerON =
-            "-fx-background-radius: 100em;\n" +
-            "-fx-min-width: 62px;\n" +
-            "-fx-min-height: 52px;\n" +
-            "-fx-focus-color: transparent;\n" +
-            "-fx-background-image: url('/pipboy/img/powerON.png');";
-
 
     public void initialize(){
         initBackground();
@@ -46,28 +31,14 @@ public class Controller {
     }
 
     private void initBackground(){
-        BackgroundImage pipBoy = new BackgroundImage(
-                new Image("pipboy/img/pipboy.png"),                 // image
-                BackgroundRepeat.NO_REPEAT,                             // repeatX
-                BackgroundRepeat.NO_REPEAT,                             // repeatY
-                BackgroundPosition.CENTER,                              // position
-                new BackgroundSize(
-                        -1,
-                        -1,
-                        false,
-                        false,
-                        false,
-                        true
-                )
-        );
-        anchorPane.setBackground(new Background(pipBoy));
+        anchorPane.getStyleClass().add("backgroundPipBoy");
     }
 
     private void initPowerButton(){
         powerButton.setTranslateX(155);
         powerButton.setTranslateY(540);
-        powerButton.setStyle(powerOFF);
         powerButton.setPickOnBounds(false);
+        setPowerButtonOFF();
     }
 
     private void initGeigerPointer(){
@@ -91,14 +62,14 @@ public class Controller {
 
 
     private void initLights(){
-        lights.setFitWidth(-1); // -1 so it doesn't fit size to the parent
+        lights.setFitWidth(-1);         // -1 so it doesn't fit size to the parent
         lights.setFitHeight(-1);
         lights.setImage(new Image("/pipboy/img/lights.png"));
         lights.setPreserveRatio(true);
         lights.setTranslateX(791);
         lights.setTranslateY(215);
         ColorAdjust ca = new ColorAdjust();
-        ca.setSaturation(-1.0); //turn off lights
+        ca.setSaturation(-1.0);          //set lights off
         lights.setEffect(ca);
     }
 
@@ -134,16 +105,35 @@ public class Controller {
         t.play();
     }
 
+    private void setPowerButtonON(){
+        String powerON =
+                "-fx-background-radius: 100em;\n" +
+                "-fx-min-width: 62px;\n" +
+                "-fx-min-height: 52px;\n" +
+                "-fx-focus-color: transparent;\n" +
+                "-fx-background-image: url('/pipboy/img/powerON.png');";
+        powerButton.setStyle(powerON);
+    }
+
+    private void setPowerButtonOFF(){
+        String powerOFF =
+                "-fx-background-radius: 100em;\n" +
+                        "-fx-min-width: 62px;\n" +
+                        "-fx-min-height: 52px;\n" +
+                        "-fx-focus-color: transparent;\n" +
+                        "-fx-background-image: url('/pipboy/img/powerOFF.png');";
+        powerButton.setStyle(powerOFF);
+    }
+
     public void powerButtonOnClick() {
         if(powerButton.isSelected()){
-            powerButton.setStyle(powerON);
+            setPowerButtonON();
 //            turnOnLights();
             discoMode();
-
             System.out.println("POWER ON!");
         }
         else {
-            powerButton.setStyle(powerOFF);
+            setPowerButtonOFF();
             turnOffLights();
             System.out.println("POWER OFF!");
         }
