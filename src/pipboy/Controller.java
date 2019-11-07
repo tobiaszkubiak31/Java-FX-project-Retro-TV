@@ -1,10 +1,12 @@
 package pipboy;
 
-import javafx.scene.control.Button;
-import javafx.scene.control.Toggle;
+import javafx.animation.*;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.transform.Rotate;
+import javafx.util.Duration;
 
 
 public class Controller {
@@ -12,6 +14,8 @@ public class Controller {
     public AnchorPane anchorPane;
 
     public ToggleButton powerButton;
+
+    public ImageView pointer;
 
     private String powerOFF =
             "-fx-background-radius: 100em;\n" +
@@ -26,7 +30,6 @@ public class Controller {
             "-fx-min-height: 52px;\n" +
             "-fx-focus-color: transparent;\n" +
             "-fx-background-image: url('/pipboy/img/powerON.png');";
-
 
     public void initialize(){
 
@@ -47,15 +50,30 @@ public class Controller {
         anchorPane.setBackground(new Background(pipBoy));
 
 
+        //POWER BUTTON
         powerButton.setTranslateX(155);
         powerButton.setTranslateY(540);
         powerButton.setStyle(powerOFF);
         powerButton.setPickOnBounds(false);
 
-        //        powerUpButton.setRotationAxis(Rotate.X_AXIS);
-        //        powerUpButton.setRotate(40);
-        //        powerUpButton.setRotationAxis(Rotate.Z_AXIS);
-        //        powerUpButton.setRotate(40);
+
+        //GEIGER COUNTER
+        pointer.setImage(new Image("/pipboy/img/geigerPointer.png"));
+        pointer.setTranslateX(843);
+        pointer.setTranslateY(142);
+        pointer.getTransforms().add(new Rotate(-70.0, 0, 0));
+
+        Rotate pointerRotation = new Rotate(0.0, 0, 0);
+        pointer.getTransforms().add(pointerRotation);
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(pointerRotation.angleProperty(), 0)),
+                new KeyFrame(Duration.seconds(1), new KeyValue(pointerRotation.angleProperty(), 100))
+        );
+
+        timeline.cycleCountProperty().setValue(1000);   //loop 1000 times
+        timeline.autoReverseProperty().setValue(true);
+        timeline.play();
     }
 
 
