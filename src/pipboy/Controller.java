@@ -1,13 +1,21 @@
 package pipboy;
 
-import javafx.animation.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.fxml.FXML;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
+
+import java.nio.file.Paths;
 
 import static javafx.animation.Animation.INDEFINITE;
 
@@ -23,11 +31,151 @@ public class Controller {
     public ImageView lights;
 
 
-    public void initialize(){
+
+    //gif and sound
+    int option = 0;
+
+    public ImageView RadioPointer;
+
+    public double RadioPropertyY = 425;
+
+
+    public ImageView myGif;
+
+    AnimatedGifDemo.Animation a ;
+
+    MediaPlayer player ;
+    public void init(){
+
         initBackground();
         initPowerButton();
         initGeigerPointer();
         initLights();
+        initGifs();
+        initRadioPointer();
+        playMusic(0);
+    }
+
+
+    @FXML
+    private void handleKeyPressed(KeyEvent event){
+        switch (event.getCode()) {
+            case P:    RadioPropertyY-=2; RadioPointer.setTranslateY(RadioPropertyY); break;
+            case L:  RadioPropertyY+=2; RadioPointer.setTranslateY(RadioPropertyY);  break;
+        }
+        int newOption ;
+
+        if(RadioPropertyY>450)
+            newOption = 1;
+        else if(RadioPropertyY<430&&RadioPropertyY>420)
+            newOption = 2;
+        else if(RadioPropertyY<400)
+            newOption = 3;
+        else
+            newOption = 0;
+
+
+        if(option!=newOption){
+            option = newOption;
+            switch (option) {
+                case 1:
+                    updateGif(1);
+                    playMusic(1);
+                    break;
+                case 2:
+                    updateGif(2);
+                    playMusic(2);
+                    break;
+                case 3:
+                    updateGif(3);
+                    playMusic(3);
+                    break;
+                case 0:
+                    updateGif(0);
+                    playMusic(0);
+                    break;
+            }
+        }
+    }
+
+
+
+
+
+
+    private void updateGif(int option) {
+
+        switch (option) {
+            case 1:
+                myGif.setImage(new Image("/pipboy/img/1.gif"));
+                myGif.setFitHeight(300);
+                myGif.setFitWidth(300);
+                break;
+            case 2:
+                myGif.setImage(new Image("/pipboy/img/2.gif"));
+                myGif.setFitHeight(300);
+                myGif.setFitWidth(300);
+                break;
+            case 3:
+                myGif.setImage(new Image("/pipboy/img/3.gif"));
+                myGif.setFitHeight(300);
+                myGif.setFitWidth(300);
+                break;
+            case 0:
+                myGif.setImage(new Image("/pipboy/img/0.gif"));
+                myGif.setFitHeight(300);
+                myGif.setFitWidth(300);
+                break;
+        }
+    }
+
+    private void playMusic(int option) {
+        //stop delete last music object
+        if(player!=null)
+            player.stop();
+        player = null;
+        System.gc();
+
+        Media media ;
+        switch (option) {
+            case 1:
+                media = new Media(Paths.get("src\\pipboy\\music\\1.mp3").toUri().toString());
+                break;
+            case 2:
+                media = new Media(Paths.get("src\\pipboy\\music\\2.mp3").toUri().toString());
+                break;
+            case 3:
+                media = new Media(Paths.get("src\\pipboy\\music\\3.mp3").toUri().toString());
+                break;
+            case 0:
+                media = new Media(Paths.get("src\\pipboy\\music\\0.mp3").toUri().toString());
+                break;
+            default: media = new Media(Paths.get("src\\pipboy\\music\\0.mp3").toUri().toString());
+                break;
+        }
+        player = new MediaPlayer(media);
+        player.setCycleCount(MediaPlayer.INDEFINITE);
+        player.play();
+    }
+
+
+    private void initRadioPointer() {
+        RadioPointer.setImage(new Image("/pipboy/img/geigerPointer.png"));
+        RadioPointer.setFitHeight(41);
+        RadioPointer.setFitWidth(23);
+        RadioPointer.setTranslateX(1030);
+        RadioPointer.setTranslateY(RadioPropertyY);
+        RadioPointer.getTransforms().add(new Rotate(-35, 0, 0));
+
+
+    }
+    private void initGifs() {
+        myGif.setImage(new Image("/pipboy/img/0.gif"));
+        myGif.setFitHeight(300);
+        myGif.setFitWidth(300);
+        myGif.setTranslateX(270);
+        myGif.setTranslateY(120);
+
     }
 
     private void initBackground(){
@@ -35,6 +183,7 @@ public class Controller {
     }
 
     private void initPowerButton(){
+
         powerButton.setTranslateX(155);
         powerButton.setTranslateY(540);
         powerButton.setPickOnBounds(false);
@@ -80,6 +229,7 @@ public class Controller {
                 new KeyFrame(Duration.ZERO, new KeyValue(ca.saturationProperty(), ca.getSaturation())),
                 new KeyFrame(Duration.seconds(animTime), new KeyValue(ca.saturationProperty(), 0.1))
         );
+
         t.play();
     }
 
@@ -128,13 +278,15 @@ public class Controller {
     public void powerButtonOnClick() {
         if(powerButton.isSelected()){
             setPowerButtonON();
-//            turnOnLights();
+            turnOnLights();
             discoMode();
+
             System.out.println("POWER ON!");
         }
         else {
             setPowerButtonOFF();
             turnOffLights();
+
             System.out.println("POWER OFF!");
         }
     }
