@@ -133,12 +133,11 @@ public class Controller {
     }
 
     private void initRadioPointer() {
-        RadioPointer.setImage(new Image("/pipboy/img/geigerPointer.png"));
-        RadioPointer.setFitHeight(41);
-        RadioPointer.setFitWidth(23);
+        RadioPointer.setImage(new Image("/pipboy/img/radioPointer.png"));
+        RadioPointer.setFitHeight(-1);
+        RadioPointer.setFitWidth(-1);
         RadioPointer.setTranslateX(1030);
         RadioPointer.setTranslateY(RadioPropertyY);
-        RadioPointer.getTransforms().add(new Rotate(-35, 0, 0));
     }
 
     private void initBackground(){
@@ -382,8 +381,8 @@ public class Controller {
 
     private void powerON(){
         showVoltBoy();
-//        turnOnLights();
-        discoMode();
+        turnOnLights();
+//        discoMode();
         setPowerButtonON();
         turnOnGeigerPointer();
         turnOnTerminalAfterDelay();
