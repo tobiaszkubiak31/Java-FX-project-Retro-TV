@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ToggleButton?>
@@ -8,19 +14,19 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#handleKeyPressed" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pipboy.Controller">
+<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#handleKeyPressed" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pipboy.Controller">
     <stylesheets>
         <URL value="@styles.css" />
     </stylesheets>
 
    <children>
-      <Label fx:id="TerminalText2" text="Label" textFill="#13ca10" />
       <ToggleButton fx:id="powerButton" mnemonicParsing="false" onAction="#powerButtonOnClick" />
       <ImageView fx:id="geigerPointer" fitHeight="41.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="lights" fitHeight="289.0" fitWidth="133.0" pickOnBounds="true" preserveRatio="true" />
       <HBox fx:id="gifAnimation1" prefHeight="100.0" prefWidth="200.0" />
       <ImageView fx:id="RadioPointer" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-      <ImageView fx:id="myGif" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="voltBoy" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="TerminalText2" text="Label" textFill="#13ca10" />
       <Label fx:id="TerminalText1" text="Label" textFill="#13ca10">
          <font>
             <Font size="68.0" />

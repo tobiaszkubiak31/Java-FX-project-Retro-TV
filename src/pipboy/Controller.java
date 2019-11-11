@@ -4,6 +4,7 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
@@ -24,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 import static javafx.animation.Animation.INDEFINITE;
 
@@ -35,42 +37,47 @@ public class Controller {
     public ToggleButton powerButton;
 
     public ImageView geigerPointer;
+    private Timeline geigerPointerAnimation;
 
     public ImageView lights;
 
+    public ImageView voltBoy;
 
-    int option = 0;
+    private int option = 0;
 
     public ImageView RadioPointer;
 
-    public double RadioPropertyY = 425;
+    private double RadioPropertyY = 425;
 
     public Label TerminalText1;
 
     public Label TerminalText2;
 
     public Label Time;
-    //public ImageView myGif;
+
+    private MediaPlayer player ;
 
 
-
-    MediaPlayer player ;
-    public void init(){
+    void init(){
 
         initBackground();
         initPowerButton();
         initGeigerPointer();
         initLights();
-        //initGifs();
+
         initTerminalText();
         initRadioPointer();
         initTime();
         playMusic(0);
+
+
+
     }
 
     private void initTime() {
         Time.setTranslateX(685);
         Time.setTranslateY(550);
+
         final Font f;
         try {
             f = Font.loadFont(new FileInputStream(new File("src\\pipboy\\fonts\\AM_TP001.ttf")), 25);
@@ -78,7 +85,6 @@ public class Controller {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
 
         DateFormat timeFormat = new SimpleDateFormat( "HH:mm:ss" );
         final Timeline timeline = new Timeline(
@@ -97,13 +103,14 @@ public class Controller {
         );
         timeline.setCycleCount( Animation.INDEFINITE );
         timeline.play();
+        Time.setVisible(false);
     }
 
     private void initTerminalText() {
 
-        TerminalText1.getStyleClass().add("falloutFont");
-        TerminalText1.setText(" Non Station");
-        TerminalText2.setText(" Station");
+        anchorPane.getStyleClass().add("falloutFont");
+        TerminalText2.setText("Current station");
+        TerminalText1.setText("None");
 
         final Font f;
         try {
@@ -119,26 +126,28 @@ public class Controller {
         TerminalText2.setTranslateX(250);
         TerminalText2.setTranslateY(150);
 
+        TerminalText1.setVisible(false);
+        TerminalText2.setVisible(false);
     }
 
-    private void updateTerminalText(int option) {
 
+
+    private void updateTerminalText(int option) {
         switch (option) {
             case 1:
-                TerminalText1.setText(" First Station");
+                TerminalText1.setText("Station X");
                 break;
             case 2:
-                TerminalText1.setText(" Second Station");
+                TerminalText1.setText("Station Y");
                 break;
             case 3:
-                TerminalText1.setText(" Third Station");
+                TerminalText1.setText("Station Z");
                 break;
             case 0:
-                TerminalText1.setText(" Non Station");
+                TerminalText1.setText("None");
                 break;
         }
     }
-
 
     @FXML
     private void handleKeyPressed(KeyEvent event){
@@ -156,7 +165,6 @@ public class Controller {
             newOption = 3;
         else
             newOption = 0;
-
 
         if(option!=newOption){
             option = newOption;
@@ -203,9 +211,6 @@ public class Controller {
             case 3:
                 media = new Media(Paths.get("src\\pipboy\\music\\3.mp3").toUri().toString());
                 break;
-            case 0:
-                media = new Media(Paths.get("src\\pipboy\\music\\0.mp3").toUri().toString());
-                break;
             default: media = new Media(Paths.get("src\\pipboy\\music\\0.mp3").toUri().toString());
                 break;
         }
@@ -222,8 +227,6 @@ public class Controller {
         RadioPointer.setTranslateX(1030);
         RadioPointer.setTranslateY(RadioPropertyY);
         RadioPointer.getTransforms().add(new Rotate(-35, 0, 0));
-
-
     }
 
     private void initBackground(){
@@ -231,7 +234,6 @@ public class Controller {
     }
 
     private void initPowerButton(){
-
         powerButton.setTranslateX(155);
         powerButton.setTranslateY(540);
         powerButton.setPickOnBounds(false);
@@ -242,19 +244,39 @@ public class Controller {
         geigerPointer.setImage(new Image("/pipboy/img/geigerPointer.png"));
         geigerPointer.setTranslateX(843);
         geigerPointer.setTranslateY(142);
-        geigerPointer.getTransforms().add(new Rotate(-70.0, 0, 0));
-
-        Rotate pointerRotation = new Rotate(0.0, 0, 0);
-        geigerPointer.getTransforms().add(pointerRotation);
-
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(pointerRotation.angleProperty(), 0)),
-                new KeyFrame(Duration.seconds(1), new KeyValue(pointerRotation.angleProperty(), 100))
+        Rotate r = new Rotate(30.0, 0, 0);
+        geigerPointer.getTransforms().add(r);
+        geigerPointerAnimation = new Timeline(
+                new KeyFrame(Duration.seconds(1.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 70)),
+                new KeyFrame(Duration.seconds(2.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 50)),
+                new KeyFrame(Duration.seconds(3.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 20)),
+                new KeyFrame(Duration.seconds(3.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 50)),
+                new KeyFrame(Duration.seconds(4.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 10)),
+                new KeyFrame(Duration.seconds(4.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 30)),
+                new KeyFrame(Duration.seconds(5.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 20))
         );
+        geigerPointerAnimation.cycleCountProperty().setValue(INDEFINITE);   //loop animation
+        geigerPointerAnimation.autoReverseProperty().setValue(true);
+    }
 
-        timeline.cycleCountProperty().setValue(INDEFINITE);   //loop animation
-        timeline.autoReverseProperty().setValue(true);
-        timeline.play();
+    private void turnOnGeigerPointer(){
+        geigerPointerAnimation.play();
+
+    }
+
+    private void turnOffGeigerPointer(){
+        geigerPointerAnimation.pause();
+    }
+
+    private void initVoltBoy() {
+        voltBoy.setImage(new Image("/pipboy/img/voltBoy.gif"));
+        voltBoy.setFitHeight(-1);
+        voltBoy.setFitWidth(-1);
+        voltBoy.setTranslateX(270);
+        voltBoy.setTranslateY(120);
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        }catch (InterruptedException ex){ex.printStackTrace();}
     }
 
 
@@ -316,28 +338,45 @@ public class Controller {
     private void setPowerButtonOFF(){
         String powerOFF =
                 "-fx-background-radius: 100em;\n" +
-                        "-fx-min-width: 62px;\n" +
-                        "-fx-min-height: 52px;\n" +
-                        "-fx-focus-color: transparent;\n" +
-                        "-fx-background-image: url('/pipboy/img/powerOFF.png');";
+                "-fx-min-width: 62px;\n" +
+                "-fx-min-height: 52px;\n" +
+                "-fx-focus-color: transparent;\n" +
+                "-fx-background-image: url('/pipboy/img/powerOFF.png');";
         powerButton.setStyle(powerOFF);
+    }
+
+    private void powerON(){
+        setPowerButtonON();
+        turnOnLights();
+        TerminalText1.setVisible(true);
+        TerminalText2.setVisible(true);
+        Time.setVisible(true);
+        turnOnGeigerPointer();
+        //initVoltBoy();
+    }
+
+    private void powerOFF(){
+        setPowerButtonOFF();
+        turnOffLights();
+        TerminalText1.setVisible(false);
+        TerminalText2.setVisible(false);
+        Time.setVisible(false);
+        turnOffGeigerPointer();
     }
 
     public void powerButtonOnClick() {
         if(powerButton.isSelected()){
-            setPowerButtonON();
-            turnOnLights();
-            discoMode();
-
-            System.out.println("POWER ON!");
+            powerON();
         }
-        else {
-            setPowerButtonOFF();
-            turnOffLights();
-
-            System.out.println("POWER OFF!");
+        else{
+            powerOFF();
         }
     }
+
+
+
+
+
     ///gifs
     /*
      private void initGifs() {
