@@ -1,9 +1,11 @@
 package pipboy;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -12,10 +14,16 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import static javafx.animation.Animation.INDEFINITE;
 
@@ -31,18 +39,20 @@ public class Controller {
     public ImageView lights;
 
 
-
-    //gif and sound
     int option = 0;
 
     public ImageView RadioPointer;
 
     public double RadioPropertyY = 425;
 
+    public Label TerminalText1;
 
-    public ImageView myGif;
+    public Label TerminalText2;
 
-    AnimatedGifDemo.Animation a ;
+    public Label Time;
+    //public ImageView myGif;
+
+
 
     MediaPlayer player ;
     public void init(){
@@ -51,9 +61,82 @@ public class Controller {
         initPowerButton();
         initGeigerPointer();
         initLights();
-        initGifs();
+        //initGifs();
+        initTerminalText();
         initRadioPointer();
+        initTime();
         playMusic(0);
+    }
+
+    private void initTime() {
+        Time.setTranslateX(685);
+        Time.setTranslateY(550);
+        final Font f;
+        try {
+            f = Font.loadFont(new FileInputStream(new File("src\\pipboy\\fonts\\AM_TP001.ttf")), 25);
+            Time.setFont(f);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+        DateFormat timeFormat = new SimpleDateFormat( "HH:mm:ss" );
+        final Timeline timeline = new Timeline(
+                new KeyFrame(
+                        Duration.millis( 500 ),
+                        event -> {
+                            final long diff = System.currentTimeMillis();
+                            if ( diff < 0 ) {
+                                //  timeLabel.setText( "00:00:00" );
+                                Time.setText( timeFormat.format( 0 ) );
+                            } else {
+                                Time.setText( timeFormat.format( diff ) );
+                            }
+                        }
+                )
+        );
+        timeline.setCycleCount( Animation.INDEFINITE );
+        timeline.play();
+    }
+
+    private void initTerminalText() {
+
+        TerminalText1.getStyleClass().add("falloutFont");
+        TerminalText1.setText(" Non Station");
+        TerminalText2.setText(" Station");
+
+        final Font f;
+        try {
+            f = Font.loadFont(new FileInputStream(new File("src\\pipboy\\fonts\\OverseerBoldItalic.ttf")), 60);
+            TerminalText1.setFont(f);
+            TerminalText2.setFont(f);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        TerminalText1.setTranslateX(190);
+        TerminalText1.setTranslateY(300);
+        TerminalText2.setTranslateX(250);
+        TerminalText2.setTranslateY(150);
+
+    }
+
+    private void updateTerminalText(int option) {
+
+        switch (option) {
+            case 1:
+                TerminalText1.setText(" First Station");
+                break;
+            case 2:
+                TerminalText1.setText(" Second Station");
+                break;
+            case 3:
+                TerminalText1.setText(" Third Station");
+                break;
+            case 0:
+                TerminalText1.setText(" Non Station");
+                break;
+        }
     }
 
 
@@ -79,53 +162,26 @@ public class Controller {
             option = newOption;
             switch (option) {
                 case 1:
-                    updateGif(1);
+                    updateTerminalText(1);
                     playMusic(1);
+                    //updateGif(int 1);
                     break;
                 case 2:
-                    updateGif(2);
+                    updateTerminalText(2);
                     playMusic(2);
+                    //updateGif(int 2);
                     break;
                 case 3:
-                    updateGif(3);
+                    updateTerminalText(3);
                     playMusic(3);
+                    //updateGif(int 3);
                     break;
                 case 0:
-                    updateGif(0);
+                    updateTerminalText(0);
                     playMusic(0);
+                    //updateGif(int 0);
                     break;
             }
-        }
-    }
-
-
-
-
-
-
-    private void updateGif(int option) {
-
-        switch (option) {
-            case 1:
-                myGif.setImage(new Image("/pipboy/img/1.gif"));
-                myGif.setFitHeight(300);
-                myGif.setFitWidth(300);
-                break;
-            case 2:
-                myGif.setImage(new Image("/pipboy/img/2.gif"));
-                myGif.setFitHeight(300);
-                myGif.setFitWidth(300);
-                break;
-            case 3:
-                myGif.setImage(new Image("/pipboy/img/3.gif"));
-                myGif.setFitHeight(300);
-                myGif.setFitWidth(300);
-                break;
-            case 0:
-                myGif.setImage(new Image("/pipboy/img/0.gif"));
-                myGif.setFitHeight(300);
-                myGif.setFitWidth(300);
-                break;
         }
     }
 
@@ -167,14 +223,6 @@ public class Controller {
         RadioPointer.setTranslateY(RadioPropertyY);
         RadioPointer.getTransforms().add(new Rotate(-35, 0, 0));
 
-
-    }
-    private void initGifs() {
-        myGif.setImage(new Image("/pipboy/img/0.gif"));
-        myGif.setFitHeight(300);
-        myGif.setFitWidth(300);
-        myGif.setTranslateX(270);
-        myGif.setTranslateY(120);
 
     }
 
@@ -290,5 +338,42 @@ public class Controller {
             System.out.println("POWER OFF!");
         }
     }
+    ///gifs
+    /*
+     private void initGifs() {
+        myGif.setImage(new Image("/pipboy/img/0.gif"));
+        myGif.setFitHeight(300);
+        myGif.setFitWidth(300);
+        myGif.setTranslateX(270);
+        myGif.setTranslateY(120);
+
+    }
+
+        private void updateGif(int option) {
+
+            switch (option) {
+                case 1:
+                    myGif.setImage(new Image("/pipboy/img/1.gif"));
+                    myGif.setFitHeight(300);
+                    myGif.setFitWidth(300);
+                    break;
+                case 2:
+                    myGif.setImage(new Image("/pipboy/img/2.gif"));
+                    myGif.setFitHeight(300);
+                    myGif.setFitWidth(300);
+                    break;
+                case 3:
+                    myGif.setImage(new Image("/pipboy/img/3.gif"));
+                    myGif.setFitHeight(300);
+                    myGif.setFitWidth(300);
+                   break;
+                case 0:
+                    myGif.setImage(new Image("/pipboy/img/0.gif"));
+                    myGif.setFitHeight(300);
+                    myGif.setFitWidth(300);
+                    break;
+            }
+        }
+        */
 
 }

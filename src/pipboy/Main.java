@@ -19,7 +19,6 @@ public class Main extends Application {
         Controller controller = loader.getController();
         Scene scene = new Scene(root, 1200, 800);
         controller.init();
-
         stage.setScene(scene);
         stage.setResizable(false);
         stage.setTitle("Pip Boy");
