@@ -35,6 +35,7 @@ public class Controller {
     public AnchorPane anchorPane;
 
     public ToggleButton powerButton;
+    private boolean powerIsOn;
 
     public ImageView geigerPointer;
     private Timeline geigerPointerAnimation;
@@ -46,14 +47,13 @@ public class Controller {
 
     private int option;
 
-    public ImageView RadioPointer;
-    private double RadioPropertyY;
+    public ImageView radioPointer;
+    private double radioPropertyY;
 
     public Label terminalText1;
     public Label terminalText2;
     public Label terminalTime;
     private Thread terminalThread;
-
 
     private MediaPlayer player ;
 
@@ -66,7 +66,7 @@ public class Controller {
         initVoltBoy();
 
         option = 0;
-        RadioPropertyY = 425;
+        radioPropertyY = 425;
 
         initTerminalText();
         initRadioPointer();
@@ -159,11 +159,11 @@ public class Controller {
     }
 
     private void initRadioPointer() {
-        RadioPointer.setImage(new Image("/pipboy/img/radioPointer.png"));
-        RadioPointer.setFitHeight(-1);
-        RadioPointer.setFitWidth(-1);
-        RadioPointer.setTranslateX(1030);
-        RadioPointer.setTranslateY(RadioPropertyY);
+        radioPointer.setImage(new Image("/pipboy/img/radioPointer.png"));
+        radioPointer.setFitHeight(-1);
+        radioPointer.setFitWidth(-1);
+        radioPointer.setTranslateX(1030);
+        radioPointer.setTranslateY(radioPropertyY);
     }
 
     private void initBackground(){
@@ -185,12 +185,12 @@ public class Controller {
         geigerPointer.getTransforms().add(r);
         geigerPointerAnimation = new Timeline(
                 new KeyFrame(Duration.seconds(1.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 70)),
-                new KeyFrame(Duration.seconds(2.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 50)),
-                new KeyFrame(Duration.seconds(3.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 20)),
-                new KeyFrame(Duration.seconds(3.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 50)),
-                new KeyFrame(Duration.seconds(4.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 10)),
-                new KeyFrame(Duration.seconds(4.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 30)),
-                new KeyFrame(Duration.seconds(5.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 20))
+                new KeyFrame(Duration.seconds(1.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 50)),
+                new KeyFrame(Duration.seconds(2.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 20)),
+                new KeyFrame(Duration.seconds(2.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 50)),
+                new KeyFrame(Duration.seconds(3.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 10)),
+                new KeyFrame(Duration.seconds(3.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 30)),
+                new KeyFrame(Duration.seconds(4.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 20))
         );
         geigerPointerAnimation.cycleCountProperty().setValue(INDEFINITE);   //loop animation
         geigerPointerAnimation.autoReverseProperty().setValue(true);
@@ -227,17 +227,19 @@ public class Controller {
 
     @FXML
     private void handleKeyPressed(KeyEvent event){
+        if(!powerIsOn) return;
+
         switch (event.getCode()) {
-            case P:    RadioPropertyY-=2; RadioPointer.setTranslateY(RadioPropertyY); break;
-            case L:  RadioPropertyY+=2; RadioPointer.setTranslateY(RadioPropertyY);  break;
+            case P:    radioPropertyY-=2; radioPointer.setTranslateY(radioPropertyY); break;
+            case L:  radioPropertyY+=2; radioPointer.setTranslateY(radioPropertyY);  break;
         }
         int newOption ;
 
-        if(RadioPropertyY>450)
+        if(radioPropertyY>450)
             newOption = 1;
-        else if(RadioPropertyY<430&&RadioPropertyY>420)
+        else if(radioPropertyY<430&&radioPropertyY>420)
             newOption = 2;
-        else if(RadioPropertyY<400)
+        else if(radioPropertyY<400)
             newOption = 3;
         else
             newOption = 0;
@@ -410,9 +412,10 @@ public class Controller {
     }
 
     private void powerON(){
+        powerIsOn = true;
         showVoltBoy();
-        turnOnLights();
-//        discoMode();
+//        turnOnLights();
+        discoMode();
         setPowerButtonON();
         turnOnGeigerPointer();
         turnOnTerminalAfterDelay();
@@ -420,6 +423,7 @@ public class Controller {
     }
 
     private void powerOFF(){
+        powerIsOn = false;
         hideVoltBoy();
         turnOffLights();
         setPowerButtonOFF();
