@@ -47,6 +47,7 @@ public class Controller {
 
     private int option;
 
+    public ImageView myGif;
     public ImageView radioPointer;
     private double radioPropertyY;
 
@@ -71,17 +72,60 @@ public class Controller {
         initTerminalText();
         initRadioPointer();
         initTime();
-
+        initGifs();
         voltBoyDisplayTime = 4.0;
     }
 
+    private void initGifs() {
+        myGif.setImage(new Image("/pipboy/img/giphy.gif"));
+        myGif.setFitHeight(300);
+        myGif.setFitWidth(300);
+        myGif.setTranslateX(310);
+        myGif.setTranslateY(240);
+
+    }
+
+    private void updateGif(int option) {
+
+        switch (option) {
+            case 1:
+                myGif.setImage(new Image("/pipboy/img/1.gif"));
+                myGif.setTranslateX(250);
+                myGif.setTranslateY(250);
+                myGif.setFitHeight(250);
+                myGif.setFitWidth(250);
+                break;
+            case 2:
+                myGif.setImage(new Image("/pipboy/img/2.gif"));
+                myGif.setTranslateX(210);
+                myGif.setTranslateY(230);
+                myGif.setFitHeight(210);
+                myGif.setFitWidth(210);
+                break;
+            case 3:
+                myGif.setImage(new Image("/pipboy/img/3.gif"));
+                myGif.setTranslateX(230);
+                myGif.setTranslateY(230);
+                myGif.setFitHeight(200);
+                myGif.setFitWidth(200);
+                break;
+            case 0:
+                myGif.setImage(new Image("/pipboy/img/0.gif"));
+
+                myGif.setFitHeight(200);
+                myGif.setFitWidth(200);
+                break;
+        }
+    }
+
+
     private void initTime() {
-        terminalTime.setTranslateX(240);
-        terminalTime.setTranslateY(350);
+        terminalTime.setTranslateX(500);
+        terminalTime.setTranslateY(430);
 
         final Font f;
         try {
-            f = Font.loadFont(new FileInputStream(new File("src/pipboy/fonts/FSEX300.ttf")), 45);
+            f = Font.loadFont(new FileInputStream(new File("src/pipboy/fonts/FSEX300.ttf")), 25);
             terminalTime.setFont(f);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -122,7 +166,7 @@ public class Controller {
 
         anchorPane.getStyleClass().add("falloutFont");
         terminalText1.setText("CURRENT STATION:");
-        terminalText2.setText("NONE");
+        terminalText2.setText("STATION Y");
 
         final Font f;
         try {
@@ -230,8 +274,18 @@ public class Controller {
         if(!powerIsOn) return;
 
         switch (event.getCode()) {
-            case P:    radioPropertyY-=2; radioPointer.setTranslateY(radioPropertyY); break;
-            case L:  radioPropertyY+=2; radioPointer.setTranslateY(radioPropertyY);  break;
+            case P:
+                if(radioPropertyY>380){
+                    radioPropertyY-=2;
+                    radioPointer.setTranslateY(radioPropertyY);
+                }
+                break;
+            case L:
+                if(radioPropertyY<465) {
+                    radioPropertyY += 2;
+                    radioPointer.setTranslateY(radioPropertyY);
+                }
+                break;
         }
         int newOption ;
 
@@ -250,18 +304,22 @@ public class Controller {
                 case 1:
                     updateTerminalText(1);
                     playMusic(1);
+                    updateGif(1);
                     break;
                 case 2:
                     updateTerminalText(2);
                     playMusic(2);
+                    updateGif(2);
                     break;
                 case 3:
                     updateTerminalText(3);
                     playMusic(3);
+                    updateGif(3);
                     break;
                 case 0:
                     updateTerminalText(0);
                     playMusic(0);
+                    updateGif(0);
                     break;
             }
         }
@@ -404,6 +462,9 @@ public class Controller {
             protected Void call() throws InterruptedException{
                 Thread.sleep((long)voltBoyDisplayTime * 1000);
                 turnOnTerminal();
+                myGif.setVisible(true);
+                updateGif(2);
+                playMusic(2);
                 return null;
             }
         };
@@ -435,9 +496,11 @@ public class Controller {
     public void powerButtonOnClick() {
         if (powerButton.isSelected()) {
             powerON();
+            myGif.setVisible(false);
         }
         else {
             powerOFF();
+            myGif.setVisible(false);
         }
     }
 
