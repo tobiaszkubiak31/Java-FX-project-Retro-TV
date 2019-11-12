@@ -23,16 +23,15 @@
       <ToggleButton fx:id="powerButton" mnemonicParsing="false" onAction="#powerButtonOnClick" />
       <ImageView fx:id="geigerPointer" fitHeight="41.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="lights" fitHeight="289.0" fitWidth="133.0" pickOnBounds="true" preserveRatio="true" />
-      <HBox fx:id="gifAnimation1" prefHeight="100.0" prefWidth="200.0" />
       <ImageView fx:id="RadioPointer" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="voltBoy" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-      <Label fx:id="TerminalText2" text="Label" textFill="#13ca10" />
-      <Label fx:id="TerminalText1" text="Label" textFill="#13ca10">
+      <Label fx:id="terminalText2" text="Label" textFill="#13ca10" />
+      <Label fx:id="terminalText1" text="Label" textFill="#13ca10">
          <font>
             <Font size="68.0" />
          </font>
       </Label>
-      <Label fx:id="Time" text="12:00" textFill="WHITE">
+      <Label fx:id="terminalTime" text="12:00" textFill="WHITE">
          <font>
             <Font name="DejaVu Sans Bold" size="28.0" />
          </font>

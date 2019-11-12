@@ -4,20 +4,18 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.property.DoubleProperty;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
@@ -28,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.concurrent.TimeUnit;
 
 import static javafx.animation.Animation.INDEFINITE;
 
@@ -47,17 +44,16 @@ public class Controller {
     public ImageView voltBoy;
     private double voltBoyDisplayTime;
 
-    private int option = 0;
+    private int option;
 
     public ImageView RadioPointer;
+    private double RadioPropertyY;
 
-    private double RadioPropertyY = 425;
-
-    public Label TerminalText1;
-    public Label TerminalText2;
+    public Label terminalText1;
+    public Label terminalText2;
+    public Label terminalTime;
     private Thread terminalThread;
 
-    public Label Time;
 
     private MediaPlayer player ;
 
@@ -69,24 +65,38 @@ public class Controller {
         initLights();
         initVoltBoy();
 
+        option = 0;
+        RadioPropertyY = 425;
+
         initTerminalText();
         initRadioPointer();
         initTime();
 
-        voltBoyDisplayTime = 3.0;
+        voltBoyDisplayTime = 4.0;
     }
 
     private void initTime() {
-        Time.setTranslateX(685);
-        Time.setTranslateY(550);
+        terminalTime.setTranslateX(240);
+        terminalTime.setTranslateY(350);
 
         final Font f;
         try {
-            f = Font.loadFont(new FileInputStream(new File("src\\pipboy\\fonts\\AM_TP001.ttf")), 25);
-            Time.setFont(f);
+            f = Font.loadFont(new FileInputStream(new File("src/pipboy/fonts/FSEX300.ttf")), 45);
+            terminalTime.setFont(f);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        terminalTime.setOpacity(0.9);
+        GaussianBlur gaussianBlur = new GaussianBlur();
+        gaussianBlur.setRadius(3.0);
+        terminalTime.setTextFill(Color.web("#78f7a8"));
+        terminalTime.setEffect(gaussianBlur);
+        InnerShadow is = new InnerShadow();
+        is.setColor(Color.GREEN);
+        is.setChoke(0.01);
+        is.setRadius(5);
+        terminalTime.setEffect(is);
 
         DateFormat timeFormat = new SimpleDateFormat( "HH:mm:ss" );
         final Timeline timeline = new Timeline(
@@ -96,40 +106,56 @@ public class Controller {
                             final long diff = System.currentTimeMillis();
                             if ( diff < 0 ) {
                                 //  timeLabel.setText( "00:00:00" );
-                                Time.setText( timeFormat.format( 0 ) );
+                                terminalTime.setText( "TIME: " + timeFormat.format( 0 ) + "\n" + "DATE: 13 NOV 2019");
                             } else {
-                                Time.setText( timeFormat.format( diff ) );
+                                terminalTime.setText( "TIME: " + timeFormat.format( diff ) + "\n" + "DATE: 13 NOV 2019");
                             }
                         }
                 )
         );
         timeline.setCycleCount( Animation.INDEFINITE );
         timeline.play();
-        Time.setVisible(false);
+        terminalTime.setVisible(false);
     }
 
     private void initTerminalText() {
 
         anchorPane.getStyleClass().add("falloutFont");
-        TerminalText1.setText("Current station:");
-        TerminalText2.setText("None");
+        terminalText1.setText("CURRENT STATION:");
+        terminalText2.setText("NONE");
 
         final Font f;
         try {
-            f = Font.loadFont(new FileInputStream(new File("src\\pipboy\\fonts\\OverseerBoldItalic.ttf")), 50);
-            TerminalText1.setFont(f);
-            TerminalText2.setFont(f);
+            f = Font.loadFont(new FileInputStream(new File("src/pipboy/fonts/FSEX300.ttf")), 45);
+            terminalText1.setFont(f);
+            terminalText2.setFont(f);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        TerminalText1.setTranslateX(220);
-        TerminalText1.setTranslateY(170);
-        TerminalText2.setTranslateX(300);
-        TerminalText2.setTranslateY(250);
+        terminalText1.setOpacity(0.9);
+        terminalText2.setOpacity(0.9);
 
-        TerminalText1.setVisible(false);
-        TerminalText2.setVisible(false);
+        terminalText1.setTextFill(Color.web("#78f7a8"));
+        terminalText2.setTextFill(Color.web("#78f7a8"));
+        GaussianBlur gaussianBlur = new GaussianBlur();
+        gaussianBlur.setRadius(3.0);
+        terminalText1.setEffect(gaussianBlur);
+        terminalText2.setEffect(gaussianBlur);
+        InnerShadow is = new InnerShadow();
+        is.setColor(Color.GREEN);
+        is.setChoke(0.01);
+        is.setRadius(5);
+        terminalText1.setEffect(is);
+        terminalText2.setEffect(is);
+
+        terminalText1.setTranslateX(240);
+        terminalText1.setTranslateY(130);
+        terminalText2.setTranslateX(240);
+        terminalText2.setTranslateY(190);
+
+        terminalText1.setVisible(false);
+        terminalText2.setVisible(false);
     }
 
     private void initRadioPointer() {
@@ -185,16 +211,16 @@ public class Controller {
     private void updateTerminalText(int option) {
         switch (option) {
             case 1:
-                TerminalText2.setText("Station X");
+                terminalText2.setText("STATION X");
                 break;
             case 2:
-                TerminalText2.setText("Station Y");
+                terminalText2.setText("STATION Y");
                 break;
             case 3:
-                TerminalText2.setText("Station Z");
+                terminalText2.setText("STATION Z");
                 break;
             case 0:
-                TerminalText2.setText("None");
+                terminalText2.setText("NONE");
                 break;
         }
     }
@@ -282,8 +308,12 @@ public class Controller {
         voltBoy.setImage(new Image("/pipboy/img/voltBoy.gif"));
         voltBoy.setFitHeight(-1);
         voltBoy.setFitWidth(-1);
-        voltBoy.setTranslateX(340);
+        voltBoy.setTranslateX(330);
         voltBoy.setTranslateY(120);
+        InnerShadow is = new InnerShadow();
+        is.setColor(Color.web("#104229"));
+        is.setRadius(60);
+        voltBoy.setEffect(is);
         hideVoltBoy();
     }
 
@@ -353,17 +383,17 @@ public class Controller {
     }
 
     private void turnOnTerminal(){
-        TerminalText1.setVisible(true);
-        TerminalText2.setVisible(true);
-        Time.setVisible(true);
+        terminalText1.setVisible(true);
+        terminalText2.setVisible(true);
+        terminalTime.setVisible(true);
         hideVoltBoy();
     }
 
     private void turnOffTerminal(){
         terminalThread.interrupt();
-        TerminalText1.setVisible(false);
-        TerminalText2.setVisible(false);
-        Time.setVisible(false);
+        terminalText1.setVisible(false);
+        terminalText2.setVisible(false);
+        terminalTime.setVisible(false);
     }
 
     private void turnOnTerminalAfterDelay(){
