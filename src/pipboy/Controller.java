@@ -4,16 +4,18 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
@@ -33,52 +35,112 @@ public class Controller {
     public AnchorPane anchorPane;
 
     public ToggleButton powerButton;
+    private boolean powerIsOn;
 
     public ImageView geigerPointer;
+    private Timeline geigerPointerAnimation;
 
     public ImageView lights;
 
+    public ImageView voltBoy;
+    private double voltBoyDisplayTime;
 
-    int option = 0;
+    private int option;
 
-    public ImageView RadioPointer;
+    public ImageView myGif;
+    public ImageView radioPointer;
+    private double radioPropertyY;
 
-    public double RadioPropertyY = 425;
+    public Label terminalText1;
+    public Label terminalText2;
+    public Label terminalTime;
+    private Thread terminalThread;
 
-    public Label TerminalText1;
-
-    public Label TerminalText2;
-
-    public Label Time;
-    //public ImageView myGif;
+    private MediaPlayer player ;
 
 
-
-    MediaPlayer player ;
-    public void init(){
-
+    void init(){
         initBackground();
         initPowerButton();
         initGeigerPointer();
         initLights();
-        //initGifs();
+        initVoltBoy();
+
+        option = 0;
+        radioPropertyY = 425;
+
         initTerminalText();
         initRadioPointer();
         initTime();
-        playMusic(0);
+        initGifs();
+        voltBoyDisplayTime = 4.0;
     }
 
+    private void initGifs() {
+        myGif.setImage(new Image("/pipboy/img/giphy.gif"));
+        myGif.setFitHeight(300);
+        myGif.setFitWidth(300);
+        myGif.setTranslateX(310);
+        myGif.setTranslateY(240);
+
+    }
+
+    private void updateGif(int option) {
+
+        switch (option) {
+            case 1:
+                myGif.setImage(new Image("/pipboy/img/1.gif"));
+                myGif.setTranslateX(250);
+                myGif.setTranslateY(250);
+                myGif.setFitHeight(250);
+                myGif.setFitWidth(250);
+                break;
+            case 2:
+                myGif.setImage(new Image("/pipboy/img/2.gif"));
+                myGif.setTranslateX(210);
+                myGif.setTranslateY(230);
+                myGif.setFitHeight(210);
+                myGif.setFitWidth(210);
+                break;
+            case 3:
+                myGif.setImage(new Image("/pipboy/img/3.gif"));
+                myGif.setTranslateX(230);
+                myGif.setTranslateY(230);
+                myGif.setFitHeight(200);
+                myGif.setFitWidth(200);
+                break;
+            case 0:
+                myGif.setImage(new Image("/pipboy/img/0.gif"));
+
+                myGif.setFitHeight(200);
+                myGif.setFitWidth(200);
+                break;
+        }
+    }
+
+
     private void initTime() {
-        Time.setTranslateX(685);
-        Time.setTranslateY(550);
+        terminalTime.setTranslateX(500);
+        terminalTime.setTranslateY(430);
+
         final Font f;
         try {
-            f = Font.loadFont(new FileInputStream(new File("src\\pipboy\\fonts\\AM_TP001.ttf")), 25);
-            Time.setFont(f);
+            f = Font.loadFont(new FileInputStream(new File("src/pipboy/fonts/FSEX300.ttf")), 25);
+            terminalTime.setFont(f);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
+        terminalTime.setOpacity(0.9);
+        GaussianBlur gaussianBlur = new GaussianBlur();
+        gaussianBlur.setRadius(3.0);
+        terminalTime.setTextFill(Color.web("#78f7a8"));
+        terminalTime.setEffect(gaussianBlur);
+        InnerShadow is = new InnerShadow();
+        is.setColor(Color.GREEN);
+        is.setChoke(0.01);
+        is.setRadius(5);
+        terminalTime.setEffect(is);
 
         DateFormat timeFormat = new SimpleDateFormat( "HH:mm:ss" );
         final Timeline timeline = new Timeline(
@@ -88,75 +150,143 @@ public class Controller {
                             final long diff = System.currentTimeMillis();
                             if ( diff < 0 ) {
                                 //  timeLabel.setText( "00:00:00" );
-                                Time.setText( timeFormat.format( 0 ) );
+                                terminalTime.setText( "TIME: " + timeFormat.format( 0 ) + "\n" + "DATE: 13 NOV 2019");
                             } else {
-                                Time.setText( timeFormat.format( diff ) );
+                                terminalTime.setText( "TIME: " + timeFormat.format( diff ) + "\n" + "DATE: 13 NOV 2019");
                             }
                         }
                 )
         );
         timeline.setCycleCount( Animation.INDEFINITE );
         timeline.play();
+        terminalTime.setVisible(false);
     }
 
     private void initTerminalText() {
 
-        TerminalText1.getStyleClass().add("falloutFont");
-        TerminalText1.setText(" Non Station");
-        TerminalText2.setText(" Station");
+        anchorPane.getStyleClass().add("falloutFont");
+        terminalText1.setText("CURRENT STATION:");
+        terminalText2.setText("STATION Y");
 
         final Font f;
         try {
-            f = Font.loadFont(new FileInputStream(new File("src\\pipboy\\fonts\\OverseerBoldItalic.ttf")), 60);
-            TerminalText1.setFont(f);
-            TerminalText2.setFont(f);
+            f = Font.loadFont(new FileInputStream(new File("src/pipboy/fonts/FSEX300.ttf")), 45);
+            terminalText1.setFont(f);
+            terminalText2.setFont(f);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        TerminalText1.setTranslateX(190);
-        TerminalText1.setTranslateY(300);
-        TerminalText2.setTranslateX(250);
-        TerminalText2.setTranslateY(150);
+        terminalText1.setOpacity(0.9);
+        terminalText2.setOpacity(0.9);
 
+        terminalText1.setTextFill(Color.web("#78f7a8"));
+        terminalText2.setTextFill(Color.web("#78f7a8"));
+        GaussianBlur gaussianBlur = new GaussianBlur();
+        gaussianBlur.setRadius(3.0);
+        terminalText1.setEffect(gaussianBlur);
+        terminalText2.setEffect(gaussianBlur);
+        InnerShadow is = new InnerShadow();
+        is.setColor(Color.GREEN);
+        is.setChoke(0.01);
+        is.setRadius(5);
+        terminalText1.setEffect(is);
+        terminalText2.setEffect(is);
+
+        terminalText1.setTranslateX(240);
+        terminalText1.setTranslateY(130);
+        terminalText2.setTranslateX(240);
+        terminalText2.setTranslateY(190);
+
+        terminalText1.setVisible(false);
+        terminalText2.setVisible(false);
+    }
+
+    private void initRadioPointer() {
+        radioPointer.setImage(new Image("/pipboy/img/radioPointer.png"));
+        radioPointer.setFitHeight(-1);
+        radioPointer.setFitWidth(-1);
+        radioPointer.setTranslateX(1030);
+        radioPointer.setTranslateY(radioPropertyY);
+    }
+
+    private void initBackground(){
+        anchorPane.getStyleClass().add("backgroundPipBoy");
+    }
+
+    private void initPowerButton(){
+        powerButton.setTranslateX(155);
+        powerButton.setTranslateY(540);
+        powerButton.setPickOnBounds(false);
+        setPowerButtonOFF();
+    }
+
+    private void initGeigerPointer(){
+        geigerPointer.setImage(new Image("/pipboy/img/geigerPointer.png"));
+        geigerPointer.setTranslateX(843);
+        geigerPointer.setTranslateY(142);
+        Rotate r = new Rotate(30.0, 0, 0);
+        geigerPointer.getTransforms().add(r);
+        geigerPointerAnimation = new Timeline(
+                new KeyFrame(Duration.seconds(1.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 70)),
+                new KeyFrame(Duration.seconds(1.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 50)),
+                new KeyFrame(Duration.seconds(2.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 20)),
+                new KeyFrame(Duration.seconds(2.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 50)),
+                new KeyFrame(Duration.seconds(3.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 10)),
+                new KeyFrame(Duration.seconds(3.5), new KeyValue(r.angleProperty(), r.angleProperty().get() - 30)),
+                new KeyFrame(Duration.seconds(4.0), new KeyValue(r.angleProperty(), r.angleProperty().get() - 20))
+        );
+        geigerPointerAnimation.cycleCountProperty().setValue(INDEFINITE);   //loop animation
+        geigerPointerAnimation.autoReverseProperty().setValue(true);
+    }
+
+    private void initLights(){
+        lights.setFitWidth(-1);         // -1 so it doesn't fit size to the parent
+        lights.setFitHeight(-1);
+        lights.setImage(new Image("/pipboy/img/lights.png"));
+        lights.setPreserveRatio(true);
+        lights.setTranslateX(791);
+        lights.setTranslateY(215);
+        ColorAdjust ca = new ColorAdjust();
+        ca.setSaturation(-1.0);          //set lights off
+        lights.setEffect(ca);
     }
 
     private void updateTerminalText(int option) {
-
         switch (option) {
             case 1:
-                TerminalText1.setText(" First Station");
+                terminalText2.setText("STATION X");
                 break;
             case 2:
-                TerminalText1.setText(" Second Station");
+                terminalText2.setText("STATION Y");
                 break;
             case 3:
-                TerminalText1.setText(" Third Station");
+                terminalText2.setText("STATION Z");
                 break;
             case 0:
-                TerminalText1.setText(" Non Station");
+                terminalText2.setText("NONE");
                 break;
         }
     }
 
-
     @FXML
     private void handleKeyPressed(KeyEvent event){
+        if(!powerIsOn) return;
+
         switch (event.getCode()) {
-            case P:    RadioPropertyY-=2; RadioPointer.setTranslateY(RadioPropertyY); break;
-            case L:  RadioPropertyY+=2; RadioPointer.setTranslateY(RadioPropertyY);  break;
+            case P:    radioPropertyY-=2; radioPointer.setTranslateY(radioPropertyY); break;
+            case L:  radioPropertyY+=2; radioPointer.setTranslateY(radioPropertyY);  break;
         }
         int newOption ;
 
-        if(RadioPropertyY>450)
+        if(radioPropertyY>450)
             newOption = 1;
-        else if(RadioPropertyY<430&&RadioPropertyY>420)
+        else if(radioPropertyY<430&&radioPropertyY>420)
             newOption = 2;
-        else if(RadioPropertyY<400)
+        else if(radioPropertyY<400)
             newOption = 3;
         else
             newOption = 0;
-
 
         if(option!=newOption){
             option = newOption;
@@ -164,22 +294,22 @@ public class Controller {
                 case 1:
                     updateTerminalText(1);
                     playMusic(1);
-                    //updateGif(int 1);
+                    updateGif(1);
                     break;
                 case 2:
                     updateTerminalText(2);
                     playMusic(2);
-                    //updateGif(int 2);
+                    updateGif(2);
                     break;
                 case 3:
                     updateTerminalText(3);
                     playMusic(3);
-                    //updateGif(int 3);
+                    updateGif(3);
                     break;
                 case 0:
                     updateTerminalText(0);
                     playMusic(0);
-                    //updateGif(int 0);
+                    updateGif(0);
                     break;
             }
         }
@@ -203,9 +333,6 @@ public class Controller {
             case 3:
                 media = new Media(Paths.get("src\\pipboy\\music\\3.mp3").toUri().toString());
                 break;
-            case 0:
-                media = new Media(Paths.get("src\\pipboy\\music\\0.mp3").toUri().toString());
-                break;
             default: media = new Media(Paths.get("src\\pipboy\\music\\0.mp3").toUri().toString());
                 break;
         }
@@ -214,70 +341,52 @@ public class Controller {
         player.play();
     }
 
+    private void stopMusic(){
+        player.stop();
+    }
 
-    private void initRadioPointer() {
-        RadioPointer.setImage(new Image("/pipboy/img/geigerPointer.png"));
-        RadioPointer.setFitHeight(41);
-        RadioPointer.setFitWidth(23);
-        RadioPointer.setTranslateX(1030);
-        RadioPointer.setTranslateY(RadioPropertyY);
-        RadioPointer.getTransforms().add(new Rotate(-35, 0, 0));
-
+    private void turnOnGeigerPointer(){
+        geigerPointerAnimation.play();
 
     }
 
-    private void initBackground(){
-        anchorPane.getStyleClass().add("backgroundPipBoy");
+    private void turnOffGeigerPointer(){
+        geigerPointerAnimation.pause();
     }
 
-    private void initPowerButton(){
-
-        powerButton.setTranslateX(155);
-        powerButton.setTranslateY(540);
-        powerButton.setPickOnBounds(false);
-        setPowerButtonOFF();
+    private void initVoltBoy() {
+        voltBoy.setImage(new Image("/pipboy/img/voltBoy.gif"));
+        voltBoy.setFitHeight(-1);
+        voltBoy.setFitWidth(-1);
+        voltBoy.setTranslateX(330);
+        voltBoy.setTranslateY(120);
+        InnerShadow is = new InnerShadow();
+        is.setColor(Color.web("#104229"));
+        is.setRadius(60);
+        voltBoy.setEffect(is);
+        hideVoltBoy();
     }
 
-    private void initGeigerPointer(){
-        geigerPointer.setImage(new Image("/pipboy/img/geigerPointer.png"));
-        geigerPointer.setTranslateX(843);
-        geigerPointer.setTranslateY(142);
-        geigerPointer.getTransforms().add(new Rotate(-70.0, 0, 0));
-
-        Rotate pointerRotation = new Rotate(0.0, 0, 0);
-        geigerPointer.getTransforms().add(pointerRotation);
-
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(pointerRotation.angleProperty(), 0)),
-                new KeyFrame(Duration.seconds(1), new KeyValue(pointerRotation.angleProperty(), 100))
+    private void showVoltBoy(){
+        voltBoy.setVisible(true);
+        Timeline t = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(voltBoy.opacityProperty(), 0.0)),
+                new KeyFrame(Duration.seconds(voltBoyDisplayTime), new KeyValue(voltBoy.opacityProperty(), 0.6))
         );
-
-        timeline.cycleCountProperty().setValue(INDEFINITE);   //loop animation
-        timeline.autoReverseProperty().setValue(true);
-        timeline.play();
+        t.play();
     }
 
-
-    private void initLights(){
-        lights.setFitWidth(-1);         // -1 so it doesn't fit size to the parent
-        lights.setFitHeight(-1);
-        lights.setImage(new Image("/pipboy/img/lights.png"));
-        lights.setPreserveRatio(true);
-        lights.setTranslateX(791);
-        lights.setTranslateY(215);
-        ColorAdjust ca = new ColorAdjust();
-        ca.setSaturation(-1.0);          //set lights off
-        lights.setEffect(ca);
+    private void hideVoltBoy(){
+        voltBoy.setVisible(false);
     }
 
     private void turnOnLights(){
         ColorAdjust ca = (ColorAdjust)lights.getEffect();
-        double animTime = Math.abs(ca.getSaturation()) + 0.1;
+        double animTime = Math.abs(ca.getSaturation()) + 0.1 + 0.5;
         Timeline t = new Timeline(
                 new KeyFrame(Duration.ZERO, new KeyValue(ca.saturationProperty(), ca.getSaturation())),
                 new KeyFrame(Duration.seconds(animTime), new KeyValue(ca.saturationProperty(), 0.1))
         );
-
         t.play();
     }
 
@@ -316,64 +425,73 @@ public class Controller {
     private void setPowerButtonOFF(){
         String powerOFF =
                 "-fx-background-radius: 100em;\n" +
-                        "-fx-min-width: 62px;\n" +
-                        "-fx-min-height: 52px;\n" +
-                        "-fx-focus-color: transparent;\n" +
-                        "-fx-background-image: url('/pipboy/img/powerOFF.png');";
+                "-fx-min-width: 62px;\n" +
+                "-fx-min-height: 52px;\n" +
+                "-fx-focus-color: transparent;\n" +
+                "-fx-background-image: url('/pipboy/img/powerOFF.png');";
         powerButton.setStyle(powerOFF);
     }
 
-    public void powerButtonOnClick() {
-        if(powerButton.isSelected()){
-            setPowerButtonON();
-            turnOnLights();
-            discoMode();
+    private void turnOnTerminal(){
+        terminalText1.setVisible(true);
+        terminalText2.setVisible(true);
+        terminalTime.setVisible(true);
+        hideVoltBoy();
+    }
 
-            System.out.println("POWER ON!");
+    private void turnOffTerminal(){
+        terminalThread.interrupt();
+        terminalText1.setVisible(false);
+        terminalText2.setVisible(false);
+        terminalTime.setVisible(false);
+    }
+
+    private void turnOnTerminalAfterDelay(){
+        Task<Void> sleeper = new Task<Void>() {
+            @Override
+            protected Void call() throws InterruptedException{
+                Thread.sleep((long)voltBoyDisplayTime * 1000);
+                turnOnTerminal();
+                myGif.setVisible(true);
+                updateGif(2);
+                playMusic(2);
+                return null;
+            }
+        };
+        terminalThread = new Thread(sleeper);
+        terminalThread.start();
+    }
+
+    private void powerON(){
+        powerIsOn = true;
+        showVoltBoy();
+//        turnOnLights();
+        discoMode();
+        setPowerButtonON();
+        turnOnGeigerPointer();
+        turnOnTerminalAfterDelay();
+        //playMusic(0);
+    }
+
+    private void powerOFF(){
+        powerIsOn = false;
+        hideVoltBoy();
+        turnOffLights();
+        setPowerButtonOFF();
+        turnOffGeigerPointer();
+        turnOffTerminal();
+        stopMusic();
+    }
+
+    public void powerButtonOnClick() {
+        if (powerButton.isSelected()) {
+            powerON();
+            myGif.setVisible(false);
         }
         else {
-            setPowerButtonOFF();
-            turnOffLights();
-
-            System.out.println("POWER OFF!");
+            powerOFF();
+            myGif.setVisible(false);
         }
     }
-    ///gifs
-    /*
-     private void initGifs() {
-        myGif.setImage(new Image("/pipboy/img/0.gif"));
-        myGif.setFitHeight(300);
-        myGif.setFitWidth(300);
-        myGif.setTranslateX(270);
-        myGif.setTranslateY(120);
-
-    }
-
-        private void updateGif(int option) {
-
-            switch (option) {
-                case 1:
-                    myGif.setImage(new Image("/pipboy/img/1.gif"));
-                    myGif.setFitHeight(300);
-                    myGif.setFitWidth(300);
-                    break;
-                case 2:
-                    myGif.setImage(new Image("/pipboy/img/2.gif"));
-                    myGif.setFitHeight(300);
-                    myGif.setFitWidth(300);
-                    break;
-                case 3:
-                    myGif.setImage(new Image("/pipboy/img/3.gif"));
-                    myGif.setFitHeight(300);
-                    myGif.setFitWidth(300);
-                   break;
-                case 0:
-                    myGif.setImage(new Image("/pipboy/img/0.gif"));
-                    myGif.setFitHeight(300);
-                    myGif.setFitWidth(300);
-                    break;
-            }
-        }
-        */
 
 }
